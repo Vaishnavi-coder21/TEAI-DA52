@@ -121,3 +121,34 @@ The notification system uses WebSockets for real-time communication.
 - Reduced API polling
 - Better user experience
 - Real-time updates
+
+# Stage 2
+
+## Database Selection
+
+For the notification system, I would use MongoDB as the primary database because notifications are flexible in structure and can scale easily with large amounts of data.
+
+MongoDB is suitable because:
+
+- It stores JSON-like documents
+- Easy to scale horizontally
+- Fast for read and write operations
+- Flexible schema for different notification types
+- Good performance for real-time systems
+
+---
+
+## Notification Schema
+
+### Collection: notifications
+
+```json
+{
+  "_id": "ObjectId",
+  "userId": "12345",
+  "title": "New Message",
+  "message": "You received a new message",
+  "type": "message",
+  "read": false,
+  "createdAt": "2026-05-18T10:00:00Z"
+}

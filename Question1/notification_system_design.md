@@ -557,3 +557,15 @@ To support notifications for 50,000 students reliably:
 - Decouple email and push notification services
 
 This architecture improves scalability, reliability, and overall system performance.
+
+#Stage 6
+## Maintaining Top 10 Efficiently
+
+To efficiently maintain the top 10 notifications as new notifications arrive:
+
+- Only unread notifications are processed
+- Priority score is calculated dynamically
+- Notifications are sorted based on score and recency
+- Only top 10 records are retained in memory
+
+This minimizes unnecessary processing and improves performance for large notification datasets.

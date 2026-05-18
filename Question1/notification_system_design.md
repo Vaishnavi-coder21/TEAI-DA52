@@ -152,3 +152,154 @@ MongoDB is suitable because:
   "read": false,
   "createdAt": "2026-05-18T10:00:00Z"
 }
+
+# Stage 3
+
+## Query Analysis
+
+The existing query is:
+
+```sql
+SELECT * FROM notifications
+WHERE studentID = 1042 AND isRead = false
+ORDER BY createdAt DESC;
+```
+
+---
+
+## Is the Query Accurate?
+
+Yes, the query is logically correct because it fetches all unread notifications of a specific student and sorts them based on latest notifications first.
+
+---
+
+## Why is the Query Slow?
+
+The database has grown to:
+
+- 50,000 students
+- 5,000,000 notifications
+
+As data increases, the query becomes slower because:
+
+1. Full table scanning may occur
+2. Sorting large records is expensive
+3. No optimized indexing for filtering and ordering
+4. `SELECT *` fetches unnecessary columns
+
+---
+
+## Improvements to the Query
+
+Instead of fetching all columns:
+
+```sql
+SELECT notificationID, notificationType, message, createdAt
+FROM notifications
+WHERE studentID = 1042 AND isRead = false
+ORDER BY createdAt DESC;
+```
+
+This reduces unnecessary data transfer and improves performance.
+
+---
+
+## Recommended Index
+
+A composite index should be created on:
+
+```sql
+(studentID, isRead, createdAt)
+```
+
+Example:
+
+```sql
+CREATE INDEX idx_notifications_student_read_created
+ON notifications(studentID, isRead, createdAt DESC);
+```
+
+---
+
+## Why Composite Index is Better
+
+This index helps because:
+
+- `studentID` is used in filtering
+- `isRead` is used in filtering
+- `createdAt` is used for sorting
+
+The database can directly locate matching rows and avoid full sorting operations.
+
+---
+
+## Estimated Computational Cost
+
+Without indexing:
+- Time Complexity ≈ O(n)
+
+Database scans a large number of rows.
+
+With proper indexing:
+- Time Complexity ≈ O(log n)
+
+Search becomes significantly faster.
+
+---
+
+## Should We Add Indexes on Every Column?
+
+No.
+
+Adding indexes on every column is not a good practice because:
+
+1. Increased storage usage
+2. Slower insert and update operations
+3. Higher memory consumption
+4. Unnecessary indexes reduce write performance
+
+Indexes should only be added on frequently searched, filtered, or sorted columns.
+
+---
+
+## Query to Find Students with Notifications in Last 7 Days
+
+```sql
+SELECT DISTINCT studentID
+FROM notifications
+WHERE createdAt >= NOW() - INTERVAL 7 DAY;
+```
+
+---
+
+## Query to Count Notifications by Type
+
+```sql
+SELECT notificationType, COUNT(*) AS totalNotifications
+FROM notifications
+GROUP BY notificationType;
+```
+
+---
+
+## Example Output
+
+| notificationType | totalNotifications |
+|------------------|-------------------|
+| Event            | 1200              |
+| Result           | 800               |
+| Placement        | 450               |
+
+---
+
+## Final Conclusion
+
+To improve notification system performance:
+
+- Use composite indexing
+- Avoid unnecessary columns in SELECT queries
+- Use pagination for large datasets
+- Avoid excessive indexes
+- Optimize filtering and sorting operations
+
+These optimizations improve scalability and reduce database load for large-scale systems.
